@@ -1,0 +1,75 @@
+#!/bin/bash
+##for file zip and unzip
+#date:2011/7/20
+
+#input:current_filename
+#use gunzip\bzip\tar commands to do this .
+#two choices:pack||unpack
+
+pack()
+{
+	##use tar cmd to pack file
+	echo "Now will use tar to pack the file......"
+	echo "tar $CUR_FILE ......."
+	#sleep 1
+	tar -zcvf $CUR_FILE.tar.gz $CUR_FILE
+	if [ "$?" -eq "0" ];then
+		echo "pack file $CUR_FILE into tar.gz file ok~!"
+	else
+		echo "Error:Pack file into tar.gz failed~!"
+		exit 1
+	fi
+}
+
+unpack(){
+	##get file type
+	ftype=`file $CUR_FILE`
+	#echo file type
+	echo "Your file type is:###$ftype"
+	case "$ftype" in
+		"$CUR_FILE: Zip archive"*)
+			unzip $CUR_FILE
+			echo "unzip $CUR_FILE OK~!"
+		;;
+		"$CUR_FILE: gzip compressed"*)
+			gunzip $CUR_FILE
+			echo "gunzip $CUR_FILE OK~!"
+			;;
+		"$CUR_FILE: bzip2 compressed"*)
+			bunzip2 $CUR_FILE
+			echo "bunzip $CUR_FILE OK~!"
+			;;
+		*)
+			echo "File $CUR_FILE can not be uncompressed!!!"
+			exit 1
+			;;
+	esac
+
+}
+
+CUR_FILE="$1"
+if [ -z $CUR_FILE];then
+	echo "Please input your filename!"
+	exit 1
+else
+	echo "Your file name:$CUR_FILE"
+
+	##make target choice
+	echo "Which work you wanna do?"
+	select var in "pack" "unpack";do
+		break
+	done
+	echo "You selected $var file....."
+
+	case $var in
+		pack)
+			pack CUR_FILE
+			;;
+	      unpack)
+			unpack CUR_FILE
+			;;
+		*)
+			echo "Usage:select option error!"
+			exit 1
+	esac
+fi
